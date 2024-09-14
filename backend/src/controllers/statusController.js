@@ -98,4 +98,65 @@ const unlikeStatus = async (req, res) => {
   }
 };
 
-export { createStatus, getAllStatus, getMyStatus, likeStatus, unlikeStatus };
+const commentStatus = async (req, res) => {
+  try {
+    const { statusId, comment, postedBy } = req.body;
+
+    const status = await Status.findById(statusId);
+    if (!status) {
+      return res.status(404).json({ message: "Status not found" });
+    }
+
+    // console.log(status);
+
+    const newComment = {
+      comment,
+      user: postedBy,
+    };
+
+    status.comments.push(newComment);
+
+    await status.save();
+
+    res.status(200).json({ message: "Comment added successfully", status });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+};
+
+const deleteStatus = async (req, res) => {
+  try {
+    const { statusId } = req.body;
+    console.log(statusId);
+
+    const status = await Status.findById(statusId);
+    if (!status) {
+      return res.status(404).json({ message: "Status not found" });
+    }
+
+    if (status.postedBy.toString() !== req.user._id.toString()) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    // console.log(status);
+
+    await Status.deleteOne({ _id: statusId });
+
+    // console.log(status);
+
+    res.status(200).json({ message: "Status deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting status:", error);
+    res.status(500).json({ message: "Server error", error });
+  }
+};
+
+export {
+  createStatus,
+  getAllStatus,
+  getMyStatus,
+  likeStatus,
+  unlikeStatus,
+  commentStatus,
+  deleteStatus,
+};

@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from "react";
 import "./Home.css";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 export default function Home() {
   const navigate = useNavigate();
   const [data, setData] = useState([]);
   const [error, setError] = useState(null);
+  const [comment, setComment] = useState("");
+  const [show, setShow] = useState(false);
+  const [item, setItem] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -74,6 +77,41 @@ export default function Home() {
       console.error(err);
     }
   };
+  const toggleComment = (posts) => {
+    if (show) {
+      setShow(false);
+    } else {
+      setShow(true);
+      setItem(posts);
+    }
+  };
+
+  const makeComment = (text, id) => {
+    fetch("http://localhost:3001/api/status/comment", {
+      method: "put",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      },
+      body: JSON.stringify({
+        text: text,
+        postId: id,
+      }),
+    })
+      .then((res) => res.json())
+      .then((result) => {
+        const newData = data.map((posts) => {
+          if (posts._id === result._id) {
+            return result;
+          } else {
+            return posts;
+          }
+        });
+        setData(newData);
+        setComment("");
+        console.log(result);
+      });
+  };
 
   if (error) return <p>Error: {error}</p>;
 
@@ -84,6 +122,11 @@ export default function Home() {
           data.map((status) => (
             <div className="card" key={status._id}>
               <h5>{status.postedBy.username}</h5>
+              <h5>
+                <Link to={`/profile/${status.postedBy._id}`}>
+                  {status.postedBy.name}
+                </Link>
+              </h5>
               <div className="card-image">
                 <img src={status.status} alt={status.statusCaption} />
               </div>
@@ -108,13 +151,100 @@ export default function Home() {
                 <p>{status.likedBy.length} Likes</p>
                 <p>{status.statusCaption}</p>
               </div>
+
               <div className="add-comment">
                 <span className="material-symbols-outlined">mood</span>
-                <input type="text" placeholder="Add a comment" />
-                <button className="comment">Post</button>
+                <input
+                  type="text"
+                  placeholder="Add a comment"
+                  value={comment}
+                  onChange={(e) => {
+                    setComment(e.target.value);
+                  }}
+                />
+                <button
+                  className="comment"
+                  onClick={() => {
+                    makeComment(comment, data._id);
+                  }}
+                >
+                  Post
+                </button>
               </div>
             </div>
           ))}
+        {show && (
+          <div className="showComment">
+            <div className="container">
+              <div className="postPic">
+                <img src={item.photo} alt="" />
+              </div>
+              <div className="details">
+                {/* card header */}
+                <div
+                  className="card-header"
+                  style={{ borderBottom: "1px solid #00000029" }}
+                >
+                  <div className="card-pic">
+                    <img
+                      src="https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8cGVyc29ufGVufDB8MnwwfHw%3D&auto=format&fit=crop&w=500&q=60"
+                      alt=""
+                    />
+                  </div>
+                  <h5>{item.postedBy.name}</h5>
+                </div>
+
+                {/* commentSection */}
+                <div
+                  className="comment-section"
+                  style={{ borderBottom: "1px solid #00000029" }}
+                >
+                  {item.comments.map((comment) => {
+                    return (
+                      <p className="comm">
+                        <span
+                          className="commenter"
+                          style={{ fontWeight: "bolder" }}
+                        >
+                          {comment.postedBy.username}{" "}
+                        </span>
+                        <span className="commentText">{comment.comment}</span>
+                      </p>
+                    );
+                  })}
+                </div>
+
+                {/* card content */}
+                <div className="card-content">
+                  <p>{item.likes.length} Likes</p>
+                  <p>{item.body}</p>
+                </div>
+
+                {/* add Comment */}
+                <div className="add-comment">
+                  <span className="material-symbols-outlined">mood</span>
+                  <input
+                    type="text"
+                    placeholder="Add a comment"
+                    value={comment}
+                    onChange={(e) => {
+                      setComment(e.target.value);
+                    }}
+                  />
+                  <button
+                    className="comment"
+                    onClick={() => {
+                      makeComment(comment, item._id);
+                      toggleComment();
+                    }}
+                  >
+                    Post
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

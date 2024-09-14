@@ -2,7 +2,7 @@ import "./Login.css";
 import logo from "../img/logo.png";
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useContext } from "react";
-import { LoginContext } from "../context/loginContext";
+import { LoginContext } from "../context/loginContext.js";
 import axios from "axios";
 
 export default function SignIn() {

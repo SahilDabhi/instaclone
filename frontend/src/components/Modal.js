@@ -1,5 +1,6 @@
 import React from "react";
-import { RiCloseLine } from "react-icons/ri";
+// import { RiCloseLine } from "react-icons/ri";
+
 import "./Modal.css";
 import { useNavigate } from "react-router-dom";
 
@@ -14,7 +15,7 @@ export default function Modal({ setModalOpen }) {
             <h5 className="heading">Confirm</h5>
           </div>
           <button className="closeBtn" onClick={() => setModalOpen(false)}>
-            <RiCloseLine />
+            {/* <RiCloseLine /> */}X
           </button>
           {/* modal content */}
           <div className="modalContent">Are you really want to log Out ?</div>

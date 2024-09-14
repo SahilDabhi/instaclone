@@ -2,7 +2,7 @@ import "./Navbar.css";
 import { useContext } from "react";
 import logo from "../img/logo.png";
 import { Link } from "react-router-dom";
-import { LoginContext } from "../context/loginContext";
+import { LoginContext } from "../context/loginContext.js";
 
 export default function Navbar({ login }) {
   const { setModalOpen } = useContext(LoginContext);

@@ -1,14 +1,15 @@
 import "./App.css";
-import Navbar from "./components/Navbar";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useState } from "react";
-import { LoginContext } from "./context/loginContext";
-import Home from "./components/Home";
-import SignUp from "./components/SignUp";
-import Login from "./components/Login";
-import Profile from "./components/Profile";
-import Status from "./components/Status";
-import Modal from "./components/Modal";
+import { LoginContext } from "./context/loginContext.js";
+import Navbar from "./components/Navbar.js";
+import Home from "./components/Home.js";
+import SignUp from "./components/SignUp.js";
+import Login from "./components/Login.js";
+import Profile from "./components/Profile.js";
+import Status from "./components/Status.js";
+import Modal from "./components/Modal.js";
+import UserProfile from "./components/UserProfile.js";
 
 function App() {
   const [userLogin, setUserLogin] = useState(false);
@@ -22,8 +23,9 @@ function App() {
             <Route path="/" element={<Home />}></Route>
             <Route path="/signup" element={<SignUp />}></Route>
             <Route path="/login" element={<Login />}></Route>
-            <Route path="/profile" element={<Profile />}></Route>
             <Route path="/uploadstatus" element={<Status />}></Route>
+            <Route exact path="/profile" element={<Profile />}></Route>
+            <Route path="/profile/:userid" element={<UserProfile />}></Route>
           </Routes>
           {modalOpen && <Modal setModalOpen={setModalOpen} />}
         </LoginContext.Provider>

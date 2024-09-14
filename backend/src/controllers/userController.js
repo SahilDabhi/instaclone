@@ -4,6 +4,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
 import dotenv from "dotenv";
+
 dotenv.config();
 
 const signup = async (req, res) => {
@@ -92,4 +93,25 @@ const login = async (req, res) => {
   }
 };
 
-export { signup, login };
+const userProfile = async (req, res) => {
+  try {
+    const user = await User.findOne({ _id: req.params.id }).select("-password");
+
+    console.log("User:", user);
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const posts = await User.find({ postedBy: req.params.id }).populate(
+      "postedBy",
+      "_id"
+    );
+
+    res.status(200).json({ user, posts });
+  } catch (err) {
+    res.status(422).json({ error: err.message });
+  }
+};
+
+export { signup, login, userProfile };

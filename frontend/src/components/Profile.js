@@ -1,8 +1,20 @@
 import "./Profile.css";
 import { useEffect, useState } from "react";
+import PostDetail from "./PostDetails.js";
 
 export default function Profile() {
   const [pic, setPic] = useState([]);
+  const [show, setShow] = useState(false);
+  const [posts, setPosts] = useState([]);
+
+  const toggleDetails = (post) => {
+    if (show) {
+      setShow(false);
+    } else {
+      setShow(true);
+      setPosts(post);
+    }
+  };
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -16,7 +28,7 @@ export default function Profile() {
         );
         const result = await response.json();
         setPic(result);
-        console.log(result);
+        // console.log(result);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -37,9 +49,9 @@ export default function Profile() {
         </div>
         {/* profile-data */}
         <div className="profile-data">
-          <h1>User</h1>
+          <h1>{JSON.parse(localStorage.getItem("user"))["username"]}</h1>
           <div className="profile-info" style={{ display: "flex" }}>
-            <p>5 posts</p>
+            <p>{pic.length} posts</p>
             <p>5 followers</p>
             <p>5 following</p>
           </div>
@@ -59,12 +71,16 @@ export default function Profile() {
             <img
               key={pics._id}
               src={pics.status}
+              onClick={() => {
+                toggleDetails(pics);
+              }}
               className="item"
-              alt={pics.statusCaption}
-            ></img>
+              alt=""
+            />
           );
         })}
       </div>
+      {show && <PostDetail item={posts} toggleDetails={toggleDetails} />}
     </div>
   );
 }

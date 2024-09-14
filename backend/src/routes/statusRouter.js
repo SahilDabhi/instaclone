@@ -7,6 +7,8 @@ import {
   getMyStatus,
   likeStatus,
   unlikeStatus,
+  commentStatus,
+  deleteStatus,
 } from "../controllers/statusController.js";
 
 const router = Router();
@@ -23,5 +25,8 @@ router
 
 router.route("/like").put(requireLogin, likeStatus);
 router.route("/unlike").put(requireLogin, unlikeStatus);
+
+router.route("/comment").put(requireLogin, commentStatus);
+router.route("/delete").post(requireLogin, deleteStatus);
 
 export default router;
