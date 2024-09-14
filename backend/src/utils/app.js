@@ -9,8 +9,10 @@ app.use(cors());
 app.use(express.json());
 
 import userRouter from "../routes/userRouter.js";
+import statusRouter from "../routes/statusRouter.js";
 
 app.use("/api/user", userRouter);
+app.use("/api/status", statusRouter);
 
 connectDB()
   .then(() => {

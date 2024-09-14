@@ -1,13 +1,17 @@
 import "./Login.css";
 import logo from "../img/logo.png";
-import { Link } from "react-router-dom";
-import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useState, useContext } from "react";
+import { LoginContext } from "../context/loginContext";
 import axios from "axios";
 
 export default function SignIn() {
+  const { setUserLogin } = useContext(LoginContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -39,9 +43,13 @@ export default function SignIn() {
           },
         }
       );
-      console.log(response);
-      //set the token
-      localStorage.setItem("token", response.data.token);
+      // console.log(response);
+
+      setUserLogin(true);
+      await localStorage.setItem("token", response.data.token);
+      await localStorage.setItem("user", JSON.stringify(response.data.user));
+      console.log(response.data);
+      navigate("/");
     } catch (error) {
       console.error(error);
     }

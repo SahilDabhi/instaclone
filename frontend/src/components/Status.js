@@ -1,10 +1,12 @@
 import "./status.css";
 import { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 export default function Status() {
   const [caption, setCaption] = useState("");
   const [image, setImage] = useState(null);
+  const navigate = useNavigate();
 
   const loadFile = (event) => {
     const file = event.target.files[0];
@@ -26,7 +28,7 @@ export default function Status() {
     formData.append("status", image);
     formData.append("statusCaption", caption);
 
-    const apiUrl = "http://localhost:3001/api/user/createstatus";
+    const apiUrl = "http://localhost:3001/api/status/createstatus";
 
     try {
       const response = await axios.post(apiUrl, formData, {
@@ -37,7 +39,8 @@ export default function Status() {
       });
 
       console.log("Status posted successfully:", response.data);
-      // Optionally clear the form or redirect the user
+      alert("Status posted successfully!");
+      navigate("/");
     } catch (error) {
       console.error("Error posting status:", error);
       alert(`Error: ${error.message}`);

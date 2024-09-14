@@ -1,47 +1,62 @@
 .profile {
-  max-width: 600px;
-  margin: 10px auto;
+  max-width: 800px; /* Increased max-width for better spacing */
+  margin: 20px auto; /* Center the container */
+  padding: 20px; /* Added padding for better spacing */
+  background-color: #f9f9f9; /* Light background for better contrast */
+  border-radius: 10px; /* Rounded corners */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
 }
 
 .profile-frame {
   display: flex;
-  justify-content: space-evenly;
+  justify-content: space-between; /* Adjusted to space-between for better layout */
+  align-items: center; /* Center align items vertically */
+  margin-bottom: 20px; /* Added margin for spacing */
 }
 
 .profile-pic {
-  height: fit-content;
+  flex-shrink: 0; /* Prevent shrinking */
 }
+
 .profile-pic > img {
   width: 160px;
   height: 160px;
-  object-fit: contain;
-  border-radius: 100px;
+  object-fit: cover; /* Changed to cover for better fit */
+  border-radius: 50%; /* Perfect circle */
+  border: 2px solid #ddd; /* Border for better visibility */
 }
 
 .profile-data {
-  text-align: left;
+  flex: 1; /* Allow profile data to take remaining space */
+  margin-left: 20px; /* Added margin for spacing */
 }
+
 .profile-info p {
   padding: 0px 5px;
+  margin: 5px 0; /* Added margin for spacing */
 }
 
 .gallery {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 3 columns per row */
+  gap: 10px; /* Space between items */
   text-align: center;
 }
 
 .gallery img {
-  width: 30%;
-  margin: 10px;
+  width: 100%; /* Ensure images take full width of grid cell */
+  border-radius: 10px;
+  height: 260px; /* Prevent image height from affecting layout */
+  object-fit: cover; /* Rounded corners */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
 }
 
 .followBtn {
   cursor: pointer;
   font-weight: bolder;
-  padding: 13px 25px;
+  padding: 10px 20px; /* Adjusted padding for consistency */
   border-radius: 15px;
-  font-size: 0.8rem;
+  font-size: 0.9rem; /* Slightly increased font size */
   border: none;
   color: white;
   background: #0115eb;
@@ -57,6 +72,8 @@
 .changePic {
   background-color: #fff;
   border-radius: 20px;
+  padding: 20px; /* Added padding for better spacing */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
 }
 
 .changePic div {
@@ -68,6 +85,11 @@
   background: none;
   border: none;
   font-weight: bolder;
-
   font-size: 15px;
+  color: #0115eb; /* Added color for better visibility */
+  transition: color 0.25s ease;
+}
+
+.upload-btn:hover {
+  color: #000; /* Change color on hover */
 }
