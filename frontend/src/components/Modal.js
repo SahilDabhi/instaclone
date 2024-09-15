@@ -15,7 +15,7 @@ export default function Modal({ setModalOpen }) {
             <h5 className="heading">Confirm</h5>
           </div>
           <button className="closeBtn" onClick={() => setModalOpen(false)}>
-            {/* <RiCloseLine /> */}X
+            X
           </button>
           {/* modal content */}
           <div className="modalContent">Are you really want to log Out ?</div>

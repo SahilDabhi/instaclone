@@ -45,84 +45,112 @@ export default function MyFollowing() {
     }
   };
 
-  const likePost = (id) => {
-    fetch("http://localhost:3001/api/status/like", {
-      method: "put",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + localStorage.getItem("token"),
-      },
-      body: JSON.stringify({
-        postId: id,
-      }),
-    })
-      .then((res) => res.json())
-      .then((result) => {
-        const newData = data.map((posts) => {
-          if (posts._id == result._id) {
-            return result;
-          } else {
-            return posts;
-          }
-        });
+  const likePost = async (id) => {
+    try {
+      const response = await fetch("http://localhost:3001/api/status/like", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+        body: JSON.stringify({
+          postId: id,
+        }),
+      });
 
-        console.log(newData);
-        setData(newData);
-        console.log(result);
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      const newData = data.map((posts) => {
+        if (posts._id === result._id) {
+          return result;
+        } else {
+          return posts;
+        }
       });
+
+      console.log(newData);
+      setData(newData);
+      console.log(result);
+    } catch (error) {
+      console.error("Error liking post:", error);
+    }
   };
-  const unlikePost = (id) => {
-    fetch("http://localhost:3001/api/status/unlike", {
-      method: "put",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + localStorage.getItem("token"),
-      },
-      body: JSON.stringify({
-        postId: id,
-      }),
-    })
-      .then((res) => res.json())
-      .then((result) => {
-        const newData = data.map((posts) => {
-          if (posts._id == result._id) {
-            return result;
-          } else {
-            return posts;
-          }
-        });
-        setData(newData);
-        console.log(result);
+
+  const unlikePost = async (id) => {
+    try {
+      const response = await fetch("http://localhost:3001/api/status/unlike", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+        body: JSON.stringify({
+          postId: id,
+        }),
       });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      const newData = data.map((posts) => {
+        if (posts._id === result._id) {
+          return result;
+        } else {
+          return posts;
+        }
+      });
+
+      setData(newData);
+      console.log(result);
+    } catch (error) {
+      console.error("Error unliking post:", error);
+    }
   };
 
   // function to make comment
-  const makeComment = (text, id) => {
-    fetch("http://localhost:3001/api/status/comment", {
-      method: "put",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + localStorage.getItem("token"),
-      },
-      body: JSON.stringify({
-        text: text,
-        postId: id,
-      }),
-    })
-      .then((res) => res.json())
-      .then((result) => {
-        const newData = data.map((posts) => {
-          if (posts._id == result._id) {
-            return result;
-          } else {
-            return posts;
-          }
-        });
-        setData(newData);
-        setComment("");
-
-        console.log(result);
+  const makeComment = async (text, id) => {
+    try {
+      const response = await fetch("http://localhost:3001/api/status/comment", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+        body: JSON.stringify({
+          comment: text,
+          postId: id,
+          postedBy: JSON.parse(localStorage.getItem("user"))._id,
+        }),
       });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      const newData = data.map((posts) => {
+        if (posts._id === result._id) {
+          return result;
+        } else {
+          return posts;
+        }
+      });
+
+      setData(newData);
+      setComment("");
+
+      console.log(result);
+    } catch (error) {
+      console.error("Error making comment:", error);
+    }
   };
 
   return (
@@ -247,7 +275,7 @@ export default function MyFollowing() {
                         className="commenter"
                         style={{ fontWeight: "bolder" }}
                       >
-                        {comment.postedBy.username}{" "}
+                        {comment.user.username}{" "}
                       </span>
                       <span className="commentText">{comment.comment}</span>
                     </p>

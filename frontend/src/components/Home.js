@@ -67,8 +67,8 @@ export default function Home() {
 
       const result = await response.json();
 
-      setData((prevData) =>
-        prevData.map((post) =>
+      setData((data) =>
+        data.map((post) =>
           post._id === result._id ? { ...post, ...result } : post
         )
       );
@@ -101,13 +101,14 @@ export default function Home() {
         }),
       });
 
-      console.log(response);
+      // console.log(response);
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const result = await response.json();
+      console.log(result);
 
       const newData = data.map((posts) => {
         if (posts._id === result._id) {
@@ -164,6 +165,15 @@ export default function Home() {
                 )}
                 <p>{status.likedBy.length} Likes</p>
                 <p>{status.statusCaption}</p>
+
+                <p
+                  style={{ fontWeight: "bold", cursor: "pointer" }}
+                  onClick={() => {
+                    toggleComment(status);
+                  }}
+                >
+                  View all comments
+                </p>
               </div>
 
               <div className="add-comment">
@@ -179,7 +189,7 @@ export default function Home() {
                 <button
                   className="comment"
                   onClick={() => {
-                    makeComment(comment, data._id);
+                    makeComment(comment, status._id);
                   }}
                 >
                   Post
@@ -191,7 +201,7 @@ export default function Home() {
           <div className="showComment">
             <div className="container">
               <div className="postPic">
-                <img src={item.photo} alt="" />
+                <img src={item.status} alt="" />
               </div>
               <div className="details">
                 {/* card header */}
@@ -220,7 +230,7 @@ export default function Home() {
                           className="commenter"
                           style={{ fontWeight: "bolder" }}
                         >
-                          {comment.postedBy.username}{" "}
+                          {comment.user.username}{" "}
                         </span>
                         <span className="commentText">{comment.comment}</span>
                       </p>
@@ -230,8 +240,8 @@ export default function Home() {
 
                 {/* card content */}
                 <div className="card-content">
-                  <p>{item.likes.length} Likes</p>
-                  <p>{item.body}</p>
+                  <p>{item.likedBy.length} Likes</p>
+                  <p>{item.statusCaption}</p>
                 </div>
 
                 {/* add Comment */}

@@ -113,7 +113,9 @@ const commentStatus = async (req, res) => {
   try {
     const { statusId, comment, postedBy } = req.body;
 
-    const status = await Status.findById(statusId);
+    const status = await Status.findById(statusId)
+      .populate("postedBy", "_id username")
+      .populate("comments.user", "username avatar");
     if (!status) {
       return res.status(404).json({ message: "Status not found" });
     }
