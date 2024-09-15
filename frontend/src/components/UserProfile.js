@@ -5,22 +5,85 @@ import { useParams } from "react-router-dom";
 
 export default function UserProfile() {
   const { userid } = useParams();
+  const [isFollow, setIsFollow] = useState(false);
   const [user, setUser] = useState("");
   const [posts, setPosts] = useState([]);
 
   useEffect(() => {
-    fetch(`http://localhost:5000/user/${userid}`, {
+    const fetchUserData = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:3001/api/user/${userid}`,
+          {
+            headers: {
+              Authorization: "Bearer " + localStorage.getItem("token"),
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+
+        const result = await response.json();
+        console.log(result);
+
+        setUser(result.user);
+        setPosts(result.posts);
+
+        const currentUser = JSON.parse(localStorage.getItem("user"));
+        if (
+          result.user &&
+          result.user.followers &&
+          result.user.followers.includes(currentUser._id)
+        ) {
+          setIsFollow(true);
+        }
+      } catch (error) {
+        console.error("There was a problem with the fetch operation:", error);
+      }
+    };
+
+    fetchUserData();
+  }, [isFollow]);
+
+  const followUser = (followId) => {
+    fetch("http://localhost:3001/api/user/follow", {
+      method: "put",
       headers: {
+        "Content-Type": "application/json",
         Authorization: "Bearer " + localStorage.getItem("token"),
       },
+      body: JSON.stringify({
+        followId,
+      }),
     })
       .then((res) => res.json())
-      .then((result) => {
-        console.log(result);
-        setUser(result.user);
-        setPosts(result.post);
+      .then((data) => {
+        console.log(data);
+        setUser(data);
+        setIsFollow(true);
       });
-  }, [userid]);
+  };
+
+  const unfollowUser = (unfollowId) => {
+    fetch("http://localhost:3001/api/user/unfollow", {
+      method: "put",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      },
+      body: JSON.stringify({
+        unfollowId,
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data);
+        setUser(data);
+        setIsFollow(false);
+      });
+  };
 
   return (
     <div className="profile">
@@ -34,12 +97,36 @@ export default function UserProfile() {
           />
         </div>
         {/* profile-data */}
-        <div className="profile-data">
-          <h1>{user.name}</h1>
+        <div className="pofile-data">
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            <h1>{user.username}</h1>
+            <button
+              className="followBtn"
+              onClick={() => {
+                if (isFollow) {
+                  unfollowUser(user._id);
+                } else {
+                  followUser(user._id);
+                }
+              }}
+            >
+              {isFollow ? "Unfollow" : "Follow"}
+            </button>
+          </div>
           <div className="profile-info" style={{ display: "flex" }}>
-            <p>{posts.length} posts</p>
-            <p>40 followers</p>
-            <p>40 following</p>
+            <p>{(posts && posts.length) || 0} posts</p>
+            <p>
+              {(user && user.followers && user.followers.length) || 0} followers
+            </p>
+            <p>
+              {(user && user.following && user.following.length) || 0} following
+            </p>
           </div>
         </div>
       </div>
@@ -57,13 +144,13 @@ export default function UserProfile() {
           return (
             <img
               key={pics._id}
-              src={pics.photo}
+              src={pics.status}
               // onClick={() => {
               //     toggleDetails(pics)
               // }}
               className="item"
               alt=""
-            ></img>
+            />
           );
         })}
       </div>

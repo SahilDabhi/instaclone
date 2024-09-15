@@ -86,31 +86,43 @@ export default function Home() {
     }
   };
 
-  const makeComment = (text, id) => {
-    fetch("http://localhost:3001/api/status/comment", {
-      method: "put",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + localStorage.getItem("token"),
-      },
-      body: JSON.stringify({
-        text: text,
-        postId: id,
-      }),
-    })
-      .then((res) => res.json())
-      .then((result) => {
-        const newData = data.map((posts) => {
-          if (posts._id === result._id) {
-            return result;
-          } else {
-            return posts;
-          }
-        });
-        setData(newData);
-        setComment("");
-        console.log(result);
+  const makeComment = async (text, id) => {
+    try {
+      const response = await fetch("http://localhost:3001/api/status/comment", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+        body: JSON.stringify({
+          statusId: id,
+          comment: text,
+          postedBy: JSON.parse(localStorage.getItem("user"))._id,
+        }),
       });
+
+      console.log(response);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      const newData = data.map((posts) => {
+        if (posts._id === result._id) {
+          return result;
+        } else {
+          return posts;
+        }
+      });
+
+      setData(newData);
+      setComment("");
+      console.log(result);
+    } catch (error) {
+      console.error("Error making comment:", error);
+    }
   };
 
   if (error) return <p>Error: {error}</p>;
@@ -121,12 +133,14 @@ export default function Home() {
         {data &&
           data.map((status) => (
             <div className="card" key={status._id}>
-              <h5>{status.postedBy.username}</h5>
-              <h5>
-                <Link to={`/profile/${status.postedBy._id}`}>
-                  {status.postedBy.name}
-                </Link>
-              </h5>
+              <div className="card-pic">
+                <img key={status._id} src={status.postedBy.avatar} alt="" />
+                <h5>
+                  <Link to={`/profile/${status.postedBy._id}`}>
+                    {status.postedBy.username}
+                  </Link>
+                </h5>
+              </div>
               <div className="card-image">
                 <img src={status.status} alt={status.statusCaption} />
               </div>

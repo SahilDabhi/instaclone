@@ -4,7 +4,6 @@ import upload from "../middlewares/upload.js";
 import {
   createStatus,
   getAllStatus,
-  getMyStatus,
   likeStatus,
   unlikeStatus,
   commentStatus,
@@ -13,7 +12,6 @@ import {
 
 const router = Router();
 
-router.route("/mystatus").get(requireLogin, getMyStatus);
 router.route("/allstatus").get(requireLogin, getAllStatus);
 router
   .route("/createstatus")

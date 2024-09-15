@@ -10,6 +10,7 @@ import Profile from "./components/Profile.js";
 import Status from "./components/Status.js";
 import Modal from "./components/Modal.js";
 import UserProfile from "./components/UserProfile.js";
+import MyFollowing from "./components/MyFollowing.js";
 
 function App() {
   const [userLogin, setUserLogin] = useState(false);
@@ -23,6 +24,7 @@ function App() {
             <Route path="/" element={<Home />}></Route>
             <Route path="/signup" element={<SignUp />}></Route>
             <Route path="/login" element={<Login />}></Route>
+            <Route path="/myfollowing" element={<MyFollowing />}></Route>
             <Route path="/uploadstatus" element={<Status />}></Route>
             <Route exact path="/profile" element={<Profile />}></Route>
             <Route path="/profile/:userid" element={<UserProfile />}></Route>

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import "./status.css";
 
 export default function Status() {
   const [caption, setCaption] = useState("");
@@ -13,7 +14,8 @@ export default function Status() {
       const output = document.getElementById("output");
       output.src = URL.createObjectURL(file);
       output.onload = () => URL.revokeObjectURL(output.src);
-      setImage(file); // Update state with the selected file
+      setImage(file);
+      console.log(file); // Update state with the selected file
     }
   };
 

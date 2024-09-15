@@ -33,7 +33,12 @@ const createStatus = async (req, res) => {
 
 const getAllStatus = async (req, res) => {
   try {
-    const statuses = await Status.find().populate("postedBy", "username");
+    const statuses = await Status.find()
+      .populate("postedBy", "avatar username")
+      .populate("comments.user", "username")
+      .populate("likedBy", "username")
+      .sort({ createdAt: -1 });
+
     res.status(200).json(statuses);
   } catch (error) {
     console.error("Error fetching statuses:", error);
@@ -42,9 +47,9 @@ const getAllStatus = async (req, res) => {
 };
 
 const getMyStatus = async (req, res) => {
-  const posts = await Status.find({ postedBy: req.user._id }).populate(
-    "postedBy"
-  );
+  const posts = await Status.find({ postedBy: req.user._id })
+    .populate("likedBy.user", "username")
+    .populate("comments.user", "username avatar");
   res.status(200).json(posts);
 };
 
@@ -53,7 +58,10 @@ const likeStatus = async (req, res) => {
     const { statusId } = req.body;
     const userId = req.user._id;
 
-    const status = await Status.findById(statusId);
+    const status = await Status.findById(statusId).populate(
+      "postedBy",
+      "_id username"
+    );
     if (!status) {
       return res.status(404).json({ message: "Status not found" });
     }
@@ -78,7 +86,10 @@ const unlikeStatus = async (req, res) => {
     const { statusId } = req.body;
     const userId = req.user._id;
 
-    const status = await Status.findById(statusId);
+    const status = await Status.findById(statusId).populate(
+      "postedBy",
+      "_id username"
+    );
     if (!status) {
       return res.status(404).json({ message: "Status not found" });
     }
@@ -151,10 +162,30 @@ const deleteStatus = async (req, res) => {
   }
 };
 
+const getMyFollowingStatus = async (req, res) => {
+  try {
+    const followingStatuses = await Status.find({
+      postedBy: { $in: req.user.following },
+    }).populate("postedBy", "username");
+
+    const followerStatuses = await Status.find({
+      postedBy: { $in: req.user.followers },
+    }).populate("postedBy", "username");
+
+    const statuses = [...followingStatuses, ...followerStatuses];
+
+    res.status(200).json(statuses);
+  } catch (error) {
+    console.error("Error fetching statuses:", error);
+    res.status(500).json({ message: "Failed to fetch statuses" });
+  }
+};
+
 export {
   createStatus,
   getAllStatus,
   getMyStatus,
+  getMyFollowingStatus,
   likeStatus,
   unlikeStatus,
   commentStatus,

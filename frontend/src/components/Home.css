@@ -15,6 +15,12 @@
   padding: 11px;
 }
 
+.card-pic {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
 .card-pic img {
   width: 30px;
   border-radius: 30px;

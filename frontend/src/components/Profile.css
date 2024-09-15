@@ -27,7 +27,9 @@
 }
 
 .profile-data {
-  flex: 1; /* Allow profile data to take remaining space */
+  display: flex;
+  flex-direction: column;
+  text-align: center; /* Allow profile data to take remaining space */
   margin-left: 20px; /* Added margin for spacing */
 }
 

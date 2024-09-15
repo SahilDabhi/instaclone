@@ -1,10 +1,12 @@
+import mongoose from "mongoose";
 import { User } from "../models/userModel.js";
+import { Status } from "../models/statusModel.js";
+import { uploadOnCloudinary } from "../utils/cloudinary.js";
 
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
 import dotenv from "dotenv";
-
 dotenv.config();
 
 const signup = async (req, res) => {
@@ -95,18 +97,22 @@ const login = async (req, res) => {
 
 const userProfile = async (req, res) => {
   try {
-    const user = await User.findOne({ _id: req.params.id }).select("-password");
+    const user = await User.findOne({ _id: req.params.id }).select(
+      "-password -__v -createdAt -updatedAt -email"
+    );
 
-    console.log("User:", user);
+    // console.log("User:", user);
 
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
 
-    const posts = await User.find({ postedBy: req.params.id }).populate(
+    const posts = await Status.find({ postedBy: req.params.id }).populate(
       "postedBy",
       "_id"
     );
+
+    // console.log("Posts:", posts);
 
     res.status(200).json({ user, posts });
   } catch (err) {
@@ -114,4 +120,125 @@ const userProfile = async (req, res) => {
   }
 };
 
-export { signup, login, userProfile };
+const followUser = async (req, res) => {
+  try {
+    const { followId } = req.body;
+    const currentUserId = req.user._id;
+
+    if (followId == currentUserId) {
+      return res.status(400).json({ error: "You cannot follow yourself" });
+    }
+
+    const userToFollow = await User.findById(followId).select(
+      "-password -__v -createdAt -updatedAt -email"
+    );
+    if (!userToFollow) {
+      return res.status(404).json({ error: "User to follow not found" });
+    }
+
+    const currentUser = await User.findById(currentUserId).select(
+      "-password -__v -createdAt -updatedAt -email"
+    );
+    if (!currentUser) {
+      return res.status(404).json({ error: "Current user not found" });
+    }
+
+    if (currentUser.following.some((id) => id.equals(followId))) {
+      return res
+        .status(400)
+        .json({ error: "You are already following this user" });
+    }
+
+    await User.findByIdAndUpdate(followId, {
+      $push: { followers: currentUserId },
+    });
+
+    await User.findByIdAndUpdate(currentUserId, {
+      $push: { following: followId },
+    });
+
+    res.status(200).json({ message: "User followed successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+const unfollowUser = async (req, res) => {
+  try {
+    const { unfollowId } = req.body;
+    const currentUserId = req.user._id;
+
+    if (unfollowId == currentUserId) {
+      return res.status(400).json({ error: "You cannot unfollow yourself" });
+    }
+
+    const userToUnfollow = await User.findById(unfollowId).select(
+      "-password -__v -createdAt -updatedAt -email"
+    );
+    if (!userToUnfollow) {
+      return res.status(404).json({ error: "User to unfollow not found" });
+    }
+
+    const currentUser = await User.findById(currentUserId).select(
+      "-password -__v -createdAt -updatedAt -email"
+    );
+    if (!currentUser) {
+      return res.status(404).json({ error: "Current user not found" });
+    }
+
+    await User.findByIdAndUpdate(currentUser, {
+      $pull: { following: unfollowId },
+    });
+
+    await User.findByIdAndUpdate(userToUnfollow, {
+      $pull: { followers: currentUserId },
+    });
+
+    res.status(200).json({ message: "User unfollowed successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+const updateProfilePic = async (req, res) => {
+  if (!req.user) {
+    return res.status(401).json({ message: "Unauthorized log in first" });
+  }
+
+  const profileLocalPath = req.files?.avatar[0].path;
+  if (!profileLocalPath) {
+    return res.status(400).json({ message: "Profile pic is required" });
+  }
+
+  const profile = await uploadOnCloudinary(profileLocalPath);
+
+  try {
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      { $set: { avatar: profile.url } },
+      { new: true }
+    ).select("-password -__v");
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    return res.status(200).json(user);
+  } catch (error) {
+    console.error(error); // Log the error for debugging
+    return res
+      .status(500)
+      .json({ message: "Something went wrong while uploading" });
+  }
+};
+
+export {
+  signup,
+  login,
+  userProfile,
+  followUser,
+  unfollowUser,
+  updateProfilePic,
+};

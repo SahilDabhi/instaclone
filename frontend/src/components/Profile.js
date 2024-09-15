@@ -1,11 +1,14 @@
 import "./Profile.css";
 import { useEffect, useState } from "react";
 import PostDetail from "./PostDetails.js";
+import ProfilePic from "./ProfilePic.js";
 
 export default function Profile() {
   const [pic, setPic] = useState([]);
   const [show, setShow] = useState(false);
   const [posts, setPosts] = useState([]);
+  const [user, setUser] = useState("");
+  const [changePic, setChangePic] = useState(false);
 
   const toggleDetails = (post) => {
     if (show) {
@@ -15,11 +18,21 @@ export default function Profile() {
       setPosts(post);
     }
   };
+
+  const changeprofile = () => {
+    if (changePic) {
+      setChangePic(false);
+    } else {
+      setChangePic(true);
+    }
+  };
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await fetch(
-          "http://localhost:3001/api/status/mystatus",
+          `http://localhost:3001/api/user/${
+            JSON.parse(localStorage.getItem("user"))._id
+          }`,
           {
             headers: {
               Authorization: "Bearer " + localStorage.getItem("token"),
@@ -28,7 +41,9 @@ export default function Profile() {
         );
         const result = await response.json();
         setPic(result);
-        // console.log(result);
+        console.log(result);
+        setPic(result.post);
+        setUser(result.user);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -42,18 +57,15 @@ export default function Profile() {
       <div className="profile-frame">
         {/* profile-pic */}
         <div className="profile-pic">
-          <img
-            src="https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8cGVyc29ufGVufDB8MnwwfHw%3D&auto=format&fit=crop&w=500&q=60"
-            alt=""
-          />
+          <img onClick={changeprofile} src={user.avatar} alt="profile" />
         </div>
         {/* profile-data */}
         <div className="profile-data">
           <h1>{JSON.parse(localStorage.getItem("user"))["username"]}</h1>
           <div className="profile-info" style={{ display: "flex" }}>
-            <p>{pic.length} posts</p>
-            <p>5 followers</p>
-            <p>5 following</p>
+            <p>{pic && pic.length} posts</p>
+            <p>{user && user.followers.length} followers</p>
+            <p>{user && user.following.length} following</p>
           </div>
         </div>
       </div>
@@ -66,21 +78,23 @@ export default function Profile() {
       />
       {/* Gallery */}
       <div className="gallery">
-        {pic.map((pics) => {
-          return (
-            <img
-              key={pics._id}
-              src={pics.status}
-              onClick={() => {
-                toggleDetails(pics);
-              }}
-              className="item"
-              alt=""
-            />
-          );
-        })}
+        {pic &&
+          pic.map((pics) => {
+            return (
+              <img
+                key={pics._id}
+                src={pics.status}
+                onClick={() => {
+                  toggleDetails(pics);
+                }}
+                className="item"
+                alt=""
+              />
+            );
+          })}
       </div>
       {show && <PostDetail item={posts} toggleDetails={toggleDetails} />}
+      {changePic && <ProfilePic changeprofile={changeprofile} />}
     </div>
   );
 }
