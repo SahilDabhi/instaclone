@@ -33,11 +33,15 @@ const createStatus = async (req, res) => {
 
 const getAllStatus = async (req, res) => {
   try {
-    const statuses = await Status.find()
+    const now = new Date();
+    const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+
+    const statuses = await Status.find({
+      createdAt: { $gte: twentyFourHoursAgo },
+    })
       .populate("postedBy", "avatar username")
       .populate("comments.user", "username")
-      .populate("likedBy", "username")
-      .sort({ createdAt: -1 });
+      .populate("likedBy", "username");
 
     res.status(200).json(statuses);
   } catch (error) {
@@ -166,12 +170,17 @@ const deleteStatus = async (req, res) => {
 
 const getMyFollowingStatus = async (req, res) => {
   try {
+    const now = new Date();
+    const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+
     const followingStatuses = await Status.find({
       postedBy: { $in: req.user.following },
+      createdAt: { $gte: twentyFourHoursAgo },
     }).populate("postedBy", "username");
 
     const followerStatuses = await Status.find({
       postedBy: { $in: req.user.followers },
+      createdAt: { $gte: twentyFourHoursAgo },
     }).populate("postedBy", "username");
 
     const statuses = [...followingStatuses, ...followerStatuses];
