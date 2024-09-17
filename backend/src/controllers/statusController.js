@@ -36,9 +36,7 @@ const getAllStatus = async (req, res) => {
     const now = new Date();
     const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
 
-    const statuses = await Status.find({
-      createdAt: { $gte: twentyFourHoursAgo },
-    })
+    const statuses = await Status.find()
       .populate("postedBy", "avatar username")
       .populate("comments.user", "username")
       .populate("likedBy", "username");

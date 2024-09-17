@@ -73,9 +73,7 @@ const login = async (req, res) => {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
-    const token = await jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "24h",
-    });
+    const token = await jwt.sign({ _id: user._id }, process.env.JWT_SECRET);
 
     const {
       password: _,
@@ -187,6 +185,10 @@ const unfollowUser = async (req, res) => {
       return res.status(404).json({ error: "Current user not found" });
     }
 
+    if (!currentUser.following.some((id) => id.equals(unfollowId))) {
+      return res.status(400).json({ error: "You are not following this user" });
+    }
+
     await User.findByIdAndUpdate(currentUser, {
       $pull: { following: unfollowId },
     });
@@ -205,6 +207,10 @@ const unfollowUser = async (req, res) => {
 const updateProfilePic = async (req, res) => {
   if (!req.user) {
     return res.status(401).json({ message: "Unauthorized log in first" });
+  }
+
+  if (!req.files.avatar) {
+    return res.status(400).json({ message: "Please upload a picture" });
   }
 
   const profileLocalPath = req.files?.avatar[0].path;

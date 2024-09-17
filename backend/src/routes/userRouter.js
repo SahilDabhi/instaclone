@@ -29,9 +29,8 @@ router
     updateProfilePic
   );
 
-router.route("/:id").get(userProfile);
-
 router.route("/follow").put(requireLogin, followUser);
 router.route("/unfollow").put(requireLogin, unfollowUser);
+router.route("/:id").get(userProfile);
 
 export default router;
