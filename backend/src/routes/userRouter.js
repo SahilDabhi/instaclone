@@ -23,11 +23,7 @@ router.route("/mystatus").get(requireLogin, getMyStatus);
 router.route("/myfollowing").get(requireLogin, getMyFollowingStatus);
 router
   .route("/updateprofilepic")
-  .post(
-    requireLogin,
-    upload.fields([{ name: "avatar", maxCount: 1 }]),
-    updateProfilePic
-  );
+  .post(requireLogin, upload.single("avatar"), updateProfilePic);
 
 router.route("/follow").put(requireLogin, followUser);
 router.route("/unfollow").put(requireLogin, unfollowUser);

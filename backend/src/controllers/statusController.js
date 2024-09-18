@@ -8,7 +8,7 @@ const createStatus = async (req, res) => {
     return res.status(401).json({ message: "Unauthorized login first" });
   }
 
-  const statusLocalPath = req.files?.status[0].path;
+  const statusLocalPath = req.files?.path;
   if (!statusLocalPath) {
     return res.status(400).json({ message: "status file is required" });
   }
@@ -171,22 +171,19 @@ const getMyFollowingStatus = async (req, res) => {
     const now = new Date();
     const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
 
-    const followingStatuses = await Status.find({
-      postedBy: { $in: req.user.following },
+    const combinedUserIds = [
+      ...new Set([...req.user.following, ...req.user.followers]),
+    ];
+
+    const statuses = await Status.find({
+      postedBy: { $in: combinedUserIds },
       createdAt: { $gte: twentyFourHoursAgo },
     }).populate("postedBy", "username");
-
-    const followerStatuses = await Status.find({
-      postedBy: { $in: req.user.followers },
-      createdAt: { $gte: twentyFourHoursAgo },
-    }).populate("postedBy", "username");
-
-    const statuses = [...followingStatuses, ...followerStatuses];
 
     res.status(200).json(statuses);
   } catch (error) {
     console.error("Error fetching statuses:", error);
-    res.status(500).json({ message: "Failed to fetch statuses" });
+    res.status(500).json({ error: error.message });
   }
 };
 

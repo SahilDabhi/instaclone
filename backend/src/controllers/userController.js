@@ -209,11 +209,7 @@ const updateProfilePic = async (req, res) => {
     return res.status(401).json({ message: "Unauthorized log in first" });
   }
 
-  if (!req.files.avatar) {
-    return res.status(400).json({ message: "Please upload a picture" });
-  }
-
-  const profileLocalPath = req.files?.avatar[0].path;
+  const profileLocalPath = req.file?.path;
   if (!profileLocalPath) {
     return res.status(400).json({ message: "Profile pic is required" });
   }

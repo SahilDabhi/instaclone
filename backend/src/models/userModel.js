@@ -48,4 +48,7 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+userSchema.index({ followers: 1 });
+userSchema.index({ following: 1 });
+
 export const User = mongoose.model("User", userSchema);
